@@ -1,0 +1,51 @@
+ <?php
+ $columns=array(
+         array(
+             'name'=>'game_id'
+             ,'header'=>'游戏'
+             ,'type'=>'raw'
+             ,'value'=>'$data["game_name"]'
+             ),
+         array(
+             'name'=>'server_id'
+             ,'header'=>'区服'
+             ,'type'=>'raw'
+             ,'value'=>'$data["server_name"]'
+             ),
+         array(
+             'name'=>'channel_id'
+             ,'header'=>'渠道'
+             ,'type'=>'raw'
+             ,'value'=>'$data["channel_name"]'
+             ),
+         array(
+                 'header'=>'开服时间'
+                 ,'type'=>'raw'
+                 ,'value'=>'date("Y-m-d",$data["open_time"])'
+              ),
+         array(
+                 'header'=>'累计开服天数'
+                 ,'type'=>'raw'
+                 ,'value'=>'ceil(( (time()-$data["open_time"])/86400))'
+              ),
+         array(
+                 'header'=>'总回款率'
+                 ,'type'=>'raw'
+                 ,'value'=>'$data["lifetime_profit_percent"]."%"'
+              )
+         );
+         for($i=$fromWeek;$i<=$toWeek;$i+=7)
+{
+    $no=$i/7;
+    $columns[]=array(
+            'header'=>"{$no}周"
+            ,'type'=>'raw'
+            ,'value'=>'Server::getProfit($data["server_id"], $data["channel_id"],
+                Server::getIncome($data["server_id"],$data["channel_id"],' .$no.')) ."%"'
+            );
+}
+        $this->widget('ext.EExcelView', array(
+            'dataProvider'=>$dataProvider
+            ,'columns'=>$columns
+            )); 
+?>

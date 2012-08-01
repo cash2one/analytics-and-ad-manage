@@ -1,0 +1,373 @@
+<?php
+class CostController extends Controller
+{
+    private $_model;
+    public  $actionTitle='';
+
+
+    public function actionIndex()
+    {
+        $to=7;
+        $week=1;
+        $month=null;
+        $channel=$server=null;
+
+        if(!empty($_GET['to']))
+        {
+            $to=$_GET['to'];
+            if($to%7==0)
+            {
+              $week=ceil($to/7);
+            }
+            else
+            {
+              $month=ceil($to/30);
+            }
+        }
+        if(!empty($_GET['server']))
+        {
+           $server=$_GET['server'];
+        }
+        if(!empty($_GET['channel']))
+        {
+           $channel=$_GET['channel'];
+        }
+
+        if(isset($_GET['ajax']))
+        {
+          $dataProvider=Server::costAnalysis($week,$month,$server,$channel);
+          $this->render('index',array(
+                     'dataProvider'=>$dataProvider,
+                     'to'=>$to,
+                     'server'=>$server,
+                     'channel'=>$channel,
+                     ));
+        }
+        else
+        {
+          $dataProvider=Server::costAnalysis($week,$month,$server,$channel);
+          $cs=Yii::app()->getClientScript();
+          $cs->registerCoreScript('jquery.ui');
+          $cs->registerScriptFile('/js/jquery.multiselect.min.js');
+          $cs->registerCssFile('/js/jquery.multiselect.css');
+          $this->render('index',array(
+                      'dataProvider'=>$dataProvider,
+                      'to'=>$to,
+                      'server'=>$server,
+                      'channel'=>$channel,
+                      ));
+        }
+    }
+
+    public function actionWeekly()
+    {
+        $channel=$server=null;
+        $fromWeek=7;
+        $toWeek=56;
+        if(!empty($_GET['from']))
+        {
+           $fromWeek=$_GET['from'];
+        }
+        if(!empty($_GET['to']))
+        {
+           $toWeek=$_GET['to'];
+        }
+        if(!empty($_GET['server']))
+        {
+           $server=$_GET['server'];
+        }
+        if(!empty($_GET['channel']))
+        {
+           $channel=$_GET['channel'];
+        }
+
+        if(isset($_GET['ajax']))
+        {
+         $dataProvider=Server::costWeekly($fromWeek,$toWeek,$server,$channel);
+         $this->renderPartial('weekly',array(
+                     'dataProvider'=>$dataProvider,
+                     'server'=>$server,
+                     'channel'=>$channel,
+                     'fromWeek'=>$fromWeek,
+                     'toWeek'=>$toWeek,
+                     ));
+        }
+        else
+        {
+          $cs=Yii::app()->getClientScript();
+          $cs->registerCoreScript('jquery.ui');
+          $cs->registerScriptFile('/js/jquery.multiselect.min.js');
+          $cs->registerCssFile('/js/jquery.multiselect.css');
+          $dataProvider=Server::costWeekly($fromWeek,$toWeek,$server,$channel);
+          $this->render('weekly',array(
+                      'dataProvider'=>$dataProvider,
+                      'server'=>$server,
+                      'channel'=>$channel,
+                      'fromWeek'=>$fromWeek,
+                      'toWeek'=>$toWeek,
+                      ));
+        }
+    }
+
+    public function actionView($id,$serverId)
+    {
+        $channel=Channel::model()->findByPk($id);
+        $server=Server::model()->findByPk($serverId);
+        $mode=1;
+        if(!empty($_GET['mode']))
+        {
+            $mode=$_GET['mode'];
+        }
+        if(!$channel || !$server)
+        {
+            throw new CHttpException(404,"你请求的页面不存在");
+        }
+        if(isset($_GET['ajax']))
+        {
+         $this->renderPartial('view',array('channel'=>$channel,'server'=>$server,'mode'=>$mode));
+        }
+        else
+        {
+         $this->render('view',array('channel'=>$channel,'server'=>$server,'mode'=>$mode));
+        }
+    }
+
+    public function actionChannel()
+    {
+        $from=$from1=strtotime('2011-10-01');
+        $to=$to1=strtotime(date('Y-m-d'))-86400;
+        if(!empty($_GET['from']))
+        {
+           $from=strtotime($_GET['from']);
+        }
+        if(!empty($_GET['to']))
+        {
+           $to=strtotime($_GET['to']);
+        }
+         if(!empty($_GET['from1']))
+        {
+           $from1=strtotime($_GET['from1']);
+        }
+        if(!empty($_GET['to1']))
+        {
+           $to1=strtotime($_GET['to1']);
+        }
+
+        if(isset($_GET['ajax']))
+        {
+         $this->renderPartial('channel',array(
+                    'from'=>$from,
+                    'to'=>$to,
+                    'from1'=>$from1,
+                    'to1'=>$to1
+                    ));
+        }
+        else
+        {
+        $this->render('channel',array(
+                    'from'=>$from,
+                    'to'=>$to,
+                    'from1'=>$from1,
+                    'to1'=>$to1
+                    ));
+        }
+    }
+
+    public function actionServer()
+    {
+        $from=strtotime('2011-08-01');
+        $to=strtotime(date('Y-m-d'))-86400;
+        $server=null;
+        if(!empty($_GET['from']))
+        {
+           $from=strtotime($_GET['from']);
+        }
+
+        if(!empty($_GET['to']))
+        {
+           $to=strtotime($_GET['to']);
+        }
+        if(!empty($_GET['server']))
+        {
+            $server=$_GET['server'];
+        }
+        if(isset($_GET['ajax']))
+        {
+             $this->renderPartial('server',array(
+                    'from'=>$from,
+                    'to'=>$to,
+                    'server'=>$server
+                    ));
+        }
+        else
+        {
+            $cs=Yii::app()->getClientScript();
+            $cs->registerCoreScript('jquery.ui');
+            $cs->registerScriptFile('/js/jquery.multiselect.min.js');
+            $cs->registerCssFile('/js/jquery.multiselect.css');
+            $this->render('server',array(
+                    'from'=>$from,
+                    'to'=>$to,
+                    'server'=>$server
+                    ));
+        }
+    }
+
+    public function actionPlatform()
+    {
+      $from=strtotime('2011-10-01');
+      $to=strtotime(date('Y-m-d'))-86400;
+      if(!empty($_GET['from']))
+      {
+         $from=strtotime($_GET['from']);
+      }
+
+      if(!empty($_GET['to']))
+      {
+         $to=strtotime($_GET['to']);
+      }
+
+      if(isset($_GET['ajax']))
+      {
+       $this->renderPartial('platform',array(
+                  'from'=>$from,
+                  'to'=>$to,
+                  ));
+      }
+      else
+      {
+      $this->render('platform',array(
+                  'from'=>$from,
+                  'to'=>$to,
+                  ));
+      }
+    }
+
+    public function actionExportIndex()
+    {
+        $to=7;
+        $week=1;
+        $month=null;
+        $channel=$server=null;
+        if(!empty($_GET['to']))
+        {
+            $to=$_GET['to'];
+            if($to%7==0)
+            {
+              $week=ceil($to/7);
+            }
+            else
+            {
+              $month=ceil($to/30);
+            }
+        }
+        if(!empty($_GET['server']))
+        {
+           $server=$_GET['server'];
+        }
+        if(!empty($_GET['channel']))
+        {
+           $channel=$_GET['channel'];
+        }
+
+        $dataProvider=Server::costAnalysis($week,$month,$server,$channel);
+        $dataProvider->pagination=false;
+        $this->renderPartial('_exportIndex',array(
+                     'dataProvider'=>$dataProvider,
+                     'to'=>$to,
+                     'server'=>$server,
+                     'channel'=>$channel,
+                     ));
+    }
+
+    public function actionExportWeekly()
+    {
+        $channel=$server=null;
+        $fromWeek=7;
+        $toWeek=56;
+        if(!empty($_GET['from']))
+        {
+           $fromWeek=$_GET['from'];
+        }
+        if(!empty($_GET['to']))
+        {
+           $toWeek=$_GET['to'];
+        }
+        if(!empty($_GET['server']))
+        {
+           $server=$_GET['server'];
+        }
+        if(!empty($_GET['channel']))
+        {
+           $channel=$_GET['channel'];
+        }
+        $dataProvider=Server::costWeekly($fromWeek,$toWeek,$server,$channel);
+        $dataProvider->pagination=false;
+        $this->renderPartial('_exportWeekly',array(
+                     'dataProvider'=>$dataProvider,
+                     'server'=>$server,
+                     'channel'=>$channel,
+                     'fromWeek'=>$fromWeek,
+                     'toWeek'=>$toWeek,
+                     ));
+    }
+
+     public function actionExportChannel()
+    {
+        $from=$from1=strtotime('2011-08-01');
+        $to=$to1=strtotime(date('Y-m-d'))-86400;
+        if(!empty($_GET['from']))
+        {
+           $from=strtotime($_GET['from']);
+        }
+        if(!empty($_GET['to']))
+        {
+           $to=strtotime($_GET['to']);
+        }
+         if(!empty($_GET['from1']))
+        {
+           $from1=strtotime($_GET['from1']);
+        }
+        if(!empty($_GET['to1']))
+        {
+           $to1=strtotime($_GET['to1']);
+        }
+        $dataProvider=Channel::costList($from,$to,$from1,$to1);
+        $dataProvider->pagination=false;
+        $this->renderPartial('_exportChannel',array(
+                    'dataProvider'=>$dataProvider,
+                    'from'=>$from,
+                    'to'=>$to,
+                    'from1'=>$from1,
+                    'to1'=>$to1
+                    ));
+    }
+
+    public function actionExportServer()
+    {
+        $from=strtotime('2011-08-01');
+        $to=strtotime(date('Y-m-d'))-86400;
+        $server=null;
+        if(!empty($_GET['server']))
+        {
+            $server=$_GET['server'];
+        }
+        if(!empty($_GET['from']))
+        {
+           $from=strtotime($_GET['from']);
+        }
+
+        if(!empty($_GET['to']))
+        {
+           $to=strtotime($_GET['to']);
+        }
+        $dataProvider=Server::costList($from,$to,$server);
+        $dataProvider->pagination=false;
+        $this->renderPartial('_exportServer',array(
+                    'dataProvider'=>$dataProvider,
+                    'from'=>$from,
+                    'to'=>$to,
+                    ));
+    }
+}
+?>

@@ -1,0 +1,15 @@
+jQuery(document).ready(function(){
+     jQuery('.showhide-account').click(function(){
+          jQuery('.account-content').toggle();
+       });
+     jQuery('.close-green').click(function(){
+        jQuery('#message-green').remove();
+       });
+     jQuery('.X_nav').click(function(){
+          console.log(jQuery('.select_sub//.show'));
+          jQuery('.select_sub//.show').removeClass('show');
+          jQuery('ul.current').removeClass('current').addClass('select');
+          jQuery(this).parents('ul.select').addClass('current');
+          jQuery(this).siblings('.select_sub').addClass('show');
+       });
+    });

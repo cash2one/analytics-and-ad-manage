@@ -1,0 +1,51 @@
+<?php
+return array(
+    'basePath'=>dirname(__FILE__).DIRECTORY_SEPARATOR.'..',
+    'name'=>'2133 管理后台',
+    'language'=>'zh_cn',
+    'preload'=>array('log'),
+
+    'import'=>array(
+        'application.models.*',
+        'application.components.*',
+        'application.extensions.yii-mail.*',
+    ),
+    'modules'=>array('srbac'),
+    'components'=>array(
+        'user'=>array(
+            'class'=>'XWebUser',
+            'allowAutoLogin'=>false,
+        ),
+        'mail'=>array(
+           'class'=>'ext.yii-mail.YiiMail',
+           'transportType'=>'smtp',
+           'transportOptions'=>array(
+               'host'=>'mail.2144.cn',
+               'username'=>'service@2133.com',
+               'password'=>'service@2133.com',
+               'port'=>25 ,
+               )
+        ),
+        'urlManager'=>array(
+            'urlFormat'=>'path',
+            'showScriptName'=>false,
+            'rules'=>array(
+                '<controller:\w+>/<id:\d+>'=>'<controller>/view',
+                '<controller:\w+>/<action:\w+>/<id:\d+>'=>'<controller>/<action>',
+                '<controller:\w+>/<action:\w+>'=>'<controller>/<action>',
+            ),
+        ),
+        'authManager'=>array(
+            'class'=>'CDbAuthManager',
+            'defaultRoles'=>array('guest'),
+            'itemTable'=>'authitem',
+            'itemChildTable'=>'authitem_child',
+            'assignmentTable'=>'auth_assignment'
+        ),
+        'errorHandler'=>array(
+            'errorAction'=>'site/error',
+        ),
+    ),
+    'params'=>array(
+    ),
+);
